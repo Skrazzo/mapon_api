@@ -1,5 +1,6 @@
 <?php
 
+
 // checks if user is logged in
 function check_login(){
     if(!isset($_SESSION['token'])) return false;
@@ -27,5 +28,23 @@ function check_fields($required){
         return true;
     }
 }
+
+
+
+//------------------- user managment ------------------
+function register(){
+
+}
+
+function login(){
+
+}
+
+function check_password(){
+
+}
+
+
+
 
 ?>
