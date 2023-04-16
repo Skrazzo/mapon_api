@@ -3,7 +3,6 @@
 include "./Inc/init_inc.php";
 
 
-
 ?>
 
 <!DOCTYPE html>

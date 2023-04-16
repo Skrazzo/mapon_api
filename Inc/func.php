@@ -31,20 +31,9 @@ function check_fields($required){
 
 
 
-//------------------- user managment ------------------
-function register(){
-
+function message($message, $error = false){
+    echo "<div class='". (($error) ? "message_error" : "message_success") ."'>". $message ."</div>";
 }
-
-function login(){
-
-}
-
-function check_password(){
-
-}
-
-
 
 
 ?>
