@@ -15,8 +15,29 @@ function register($user, $pass){
     $_SESSION['token'] = $token;
 }
 
-function login(){
+// function logs in user, if password is correct
+function login($user, $pass){
 
+    // creating where statement and getting hashed password
+    $GLOBALS['sql']->where('user', $user); 
+    $hash = $GLOBALS['sql']->getValue("users", "pass");
+
+    if(password_verify($pass, $hash)){
+        // generate new token, update the database, and log in user with new token
+        $token = return_token();
+
+        $GLOBALS['sql']->where('user', $user); 
+        $update_data = array(
+            'token' => $token
+        );
+        $GLOBALS['sql']->update('users', $update_data);
+
+        $_SESSION['token'] = $token;
+        
+        // return message
+        return true;
+    }
+    return false;
 }
 
 function check_password(){
