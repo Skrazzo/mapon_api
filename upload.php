@@ -48,6 +48,7 @@ if(isset($_POST["submit"])) {
                     // check correct column count
                     if(count($data) == 11){
                         $row++;
+                        create_data_arr($data);
                         
 
                     }
@@ -65,7 +66,27 @@ if(isset($_POST["submit"])) {
 
 // from row data given, sort it and return as array
 function create_data_arr($row_data){
+    //echo "<pre>". print_r($row_data, 1) ."</pre>";
 
+    echo "<p>". convert_string_unix($row_data[1], $row_data[0], $row_data[9]) ."</p>";
+}
+
+// this function return unix date, from string time, and date + timezone
+function convert_string_unix($time, $date, $country_iso){
+    @date_default_timezone_set(get_time_zone($country_iso));
+
+    $converted = strtotime($date. ' ' .$time);
+    if(!$converted){ // timestamp was unsuccessfull
+        return "Wrong date";
+    }
+
+    return $converted . " | " . get_time_zone($country_iso) . " | " . date("d/m/Y H:i:s", $converted);
+}
+
+// function that returns timezone from mysql database by giving country iso
+function get_time_zone($country_code){
+    $GLOBALS['sql']->where("country_code", $country_code);
+    return $GLOBALS['sql']->getValue("timezonecity", "time_zone");
 }
 
 // this function returns randomized name that doesn't exist yet
@@ -78,6 +99,8 @@ function return_random_name(){
     return $target_file;
 }
 
+
+// well this is obvious
 function generateRandomString($length = 10) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $charactersLength = strlen($characters);
