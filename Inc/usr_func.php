@@ -15,6 +15,11 @@ function register($user, $pass){
     $_SESSION['token'] = $token;
 }
 
+// log user out
+function log_out(){
+    @session_destroy();
+}
+
 // function logs in user, if password is correct
 function login($user, $pass){
 
@@ -49,5 +54,12 @@ function username_exists($user){
     $GLOBALS['sql']->where("user", $user);
     if($GLOBALS['sql']->getValue("users", "COUNT(*)") > 0) return true;
     return false;
+}
+
+function get_username(){
+    if(isset($_SESSION['token'])){
+        $GLOBALS['sql']->where('token', $_SESSION['token']);
+        return $GLOBALS['sql']->getValue('users', 'user');
+    }
 }
 ?>

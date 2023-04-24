@@ -5,7 +5,7 @@ include "./Inc/usr_func.php";
 
 if(check_fields(['user', 'pass'])){
     if(login($_POST['user'], $_POST['pass'])){ // login successfull
-        // redirect
+        header("Location: ./");
     }else{ 
         message("Username or password wasn't correct", true);
     }

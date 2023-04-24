@@ -1,12 +1,21 @@
 <?php
 
 
-// checks if user is logged in
+// checks if user is logged in, returns true if user is logged in
 function check_login(){
     if(!isset($_SESSION['token'])) return false;
 
-    
+    $GLOBALS['sql']->where("token", $_SESSION["token"]);
+    $result = $GLOBALS['sql']->get("users");
+    if(count($result) == 1){ // token has been verified
+        return true;
+    }
+
+    return false;
 }
+
+
+
 
 function return_token(){
     return bin2hex(random_bytes(32));
