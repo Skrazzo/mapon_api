@@ -31,15 +31,13 @@ if(isset($_POST["submit"])) {
         // write file to the remote directory
         if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
             // file has been successfully uploaded
-            //header("Location: ./");
-
             // uploaded file insert into database
             $data = array(
                 'doc_name' => $file_name, 
                 'doc_path' => $target_file,
                 'user_id' => get_user_id()
             );
-            $GLOBALS['sql']->insert("documents", $data);
+            $inserted_doc_id = $GLOBALS['sql']->insert("documents", $data);
             
 
             $row = 1;
@@ -48,7 +46,15 @@ if(isset($_POST["submit"])) {
                     // check correct column count
                     if(count($data) == 11){
                         $row++;
-                        create_data_arr($data);
+                        $arr = create_data_arr($data, $inserted_doc_id);
+                        if(!$arr){ // if returned result isn't false, insert it into database
+                            
+                            
+                        }else{
+                            echo "<pre>". print_r($arr, 1) ."</pre>";
+                            $db =  $GLOBALS['sql']->insert("transactions", $arr);
+                            echo $db;
+                        }
                         
 
                     }
@@ -65,22 +71,45 @@ if(isset($_POST["submit"])) {
 }
 
 // from row data given, sort it and return as array
-function create_data_arr($row_data){
+// function returns false if product didn't meet the requirments
+function create_data_arr($row_data, $doc_id){
     //echo "<pre>". print_r($row_data, 1) ."</pre>";
 
-    echo "<p>". convert_string_unix($row_data[1], $row_data[0], $row_data[9]) ."</p>";
-}
+    //echo "<p>". convert_string_unix($row_data[1], $row_data[0], $row_data[9]) ."</p>";
 
-// this function return unix date, from string time, and date + timezone
-function convert_string_unix($time, $date, $country_iso){
-    @date_default_timezone_set(get_time_zone($country_iso));
+    $allowed_prod = ['Diesel', 'E95', 'E98', 'Electricity', 'CNG']; // allowed products
+    if(in_array($row_data[4], $allowed_prod)){
+        $return_data = array(
+            'doc_id' =>         $doc_id,
+            'datetime_ts' =>    convert_string_unix($row_data[1], $row_data[0]),
+            'card_nr' =>        $row_data[2],
+            'car_nr' =>         $row_data[3],
+            'product' =>        $row_data[4],
+            'amount' =>         $row_data[5],
+            'sum' =>            $row_data[6],
+            'currency' =>       $row_data[7],
+            'country' =>        $row_data[8],
+            'country_iso' =>    $row_data[9],
+            'fuel_station' =>   $row_data[10]
+        );
 
-    $converted = strtotime($date. ' ' .$time);
-    if(!$converted){ // timestamp was unsuccessfull
-        return "Wrong date";
+        return $return_data;
     }
 
-    return $converted . " | " . get_time_zone($country_iso) . " | " . date("d/m/Y H:i:s", $converted);
+    return false;
+    
+}
+
+// this function return unix date, from string time, and date + timezone, function returns false, on non correct data
+function convert_string_unix($time, $date){
+    @date_default_timezone_set("Europe/Riga");
+
+    $unix_ts = strtotime($date. ' ' .$time);
+    if(!$unix_ts){ // timestamp was unsuccessfull
+        return false;
+    }
+
+    return $unix_ts;
 }
 
 // function that returns timezone from mysql database by giving country iso
