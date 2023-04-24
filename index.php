@@ -18,9 +18,14 @@ if(!check_login()){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View documents</title>
-</head>
-<body>
-    <h1>Glad that you're logged in <?= get_username() ?></h1>
+
+    <link rel="stylesheet" href="./CSS/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+</head> 
+<body style="display: flex;">
+    <div class="sidebar">
+        <p class="center-p">Welcome <?= get_username() ?> <i class="logout-btn bi bi-box-arrow-left"></i></p>
+    </div>
     
 </body>
 </html>

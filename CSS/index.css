@@ -1,0 +1,26 @@
+body{
+    margin: 0;
+}
+
+
+/* -------------- side bar ------------------- */
+.sidebar{
+    background-color: rgba(0, 0, 0, 0.02);
+    box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.3);
+    
+    width: 200px;
+    height: 100vh;
+}
+
+
+
+/* ------------------- other classes -------------- */
+.center-p{
+    text-align: center;
+    margin: 5px 0;
+}
+
+.logout-btn{
+    color: red;
+    cursor: pointer;
+}
