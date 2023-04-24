@@ -25,7 +25,18 @@ if(!check_login()){
 <body style="display: flex;">
     <div class="sidebar">
         <p class="center-p">Welcome <?= get_username() ?> <i class="logout-btn bi bi-box-arrow-left"></i></p>
-    </div>
     
+        <div class="cont">
+            <p class="center-p bold">Document upload</p>
+            <form action="upload.php" method="post" enctype="multipart/form-data">
+                Select csv file to upload:
+                <input type="file" name="fileToUpload" id="fileToUpload">
+                <input type="submit" value="Upload file" name="submit">
+            </form>
+
+        </div>
+    
+    </div>
+
 </body>
 </html>

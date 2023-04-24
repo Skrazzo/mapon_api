@@ -8,11 +8,17 @@ body{
     background-color: rgba(0, 0, 0, 0.02);
     box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.3);
     
-    width: 200px;
+    width: 400px;
     height: 100vh;
+
+    padding: 5px;
 }
 
-
+.sidebar .cont{
+    padding: 5px;
+    box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
 
 /* ------------------- other classes -------------- */
 .center-p{
@@ -21,6 +27,12 @@ body{
 }
 
 .logout-btn{
+    
     color: red;
     cursor: pointer;
+}
+
+.bold{
+    font-size: larger;
+    font-weight: bold;
 }

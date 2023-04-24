@@ -56,6 +56,14 @@ function username_exists($user){
     return false;
 }
 
+// function that return current user id
+function get_user_id(){
+    if(isset($_SESSION['token'])){
+        $GLOBALS['sql']->where('token', $_SESSION['token']);
+        return $GLOBALS['sql']->getValue('users', 'id');
+    }
+}
+
 function get_username(){
     if(isset($_SESSION['token'])){
         $GLOBALS['sql']->where('token', $_SESSION['token']);
