@@ -20,6 +20,21 @@ body{
     border-radius: 5px;
 }
 
+.sidebar .doc_select{
+    width: 100%;
+}
+/* ---------------------- info table -------------------- */
+
+.info_table{
+    border-collapse: collapse;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.info_table tr, th, td{
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    
+}
+
 /* ------------------- other classes -------------- */
 .center-p{
     text-align: center;
@@ -35,4 +50,12 @@ body{
 .bold{
     font-size: larger;
     font-weight: bold;
+}
+
+.mt{
+    margin-top: 5px;
+}
+
+.w-full{
+    width: 100%;
 }

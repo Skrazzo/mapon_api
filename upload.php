@@ -58,17 +58,10 @@ if(isset($_POST["submit"])) {
                     if(count($data) == 11){
                         $row++;
                         $arr = create_data_arr($data, $inserted_doc_id);
-                        if(!$arr){ // if returned result isn't false, insert it into database
-                            
-                            
-                        }else{
-                            echo "<pre>". print_r($arr, 1) ."</pre>";
+                        if($arr){ // if returned result isn't false, insert it into database
+                            // insert
                             $db =  $GLOBALS['sql']->insert("transactions", $arr);
-                            if($db){
-                                echo "true";
-                            }else{
-                                echo "false";
-                            }
+                            
                         }
                         
 
@@ -76,6 +69,8 @@ if(isset($_POST["submit"])) {
                 }
                 fclose($handle);
             }
+
+            header("Location: ./");
 
         } else {
             die("Sorry, there was an error uploading your file.");
@@ -107,7 +102,7 @@ function create_data_arr($row_data, $doc_id){
 
         $return_data = array(
             'doc_id' =>         $doc_id,
-            'datetime_ts' =>    convert_string_unix($row_data[1], $row_data[0]),
+            'datetime_ts' =>    convert_string_unix($row_data[1], $row_data[0], $row_data[9]),
             'card_nr' =>        $row_data[2],
             'car_nr' =>         $row_data[3],
             'product' =>        $row_data[4],
@@ -127,8 +122,8 @@ function create_data_arr($row_data, $doc_id){
 }
 
 // this function return unix date, from string time, and date + timezone, function returns false, on non correct data
-function convert_string_unix($time, $date){
-    @date_default_timezone_set("Europe/Riga");
+function convert_string_unix($time, $date, $ccode){
+    @date_default_timezone_set(get_time_zone($ccode));
 
     $unix_ts = strtotime($date. ' ' .$time);
     if(!$unix_ts){ // timestamp was unsuccessfull
