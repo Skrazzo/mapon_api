@@ -53,7 +53,11 @@ if(isset($_POST["submit"])) {
                         }else{
                             echo "<pre>". print_r($arr, 1) ."</pre>";
                             $db =  $GLOBALS['sql']->insert("transactions", $arr);
-                            echo $db;
+                            if($db){
+                                echo "true";
+                            }else{
+                                echo "false";
+                            }
                         }
                         
 
