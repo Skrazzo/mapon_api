@@ -9,6 +9,17 @@ if(!check_login()){
     die();
 }
 
+$currency_rates = json_decode(file_get_contents('https://api.exchangerate-api.com/v4/latest/EUR'), true);
+
+// check if currency rates are loaded
+if($currency_rates == false){
+    die("Currency rates didn't load!");
+}
+
+if(!isset($currency_rates['rates'])){
+    die("Something is wrong with the currency rates!");
+}
+$currency_rates = $currency_rates['rates'];
 
 $target_dir = "uploads/";
 $fileType = strtolower(pathinfo($_FILES['fileToUpload']['name'] ,PATHINFO_EXTENSION));
@@ -83,6 +94,17 @@ function create_data_arr($row_data, $doc_id){
 
     $allowed_prod = ['Diesel', 'E95', 'E98', 'Electricity', 'CNG']; // allowed products
     if(in_array($row_data[4], $allowed_prod)){
+        
+        
+
+        // check if currency needs to be converted
+        if($row_data[7] != "EUR"){
+            
+            // translate currency
+            $row_data[6] = round($row_data[6] / $GLOBALS['currency_rates'][$row_data[7]], 2);
+            $row_data[7] = "EUR";
+        }
+
         $return_data = array(
             'doc_id' =>         $doc_id,
             'datetime_ts' =>    convert_string_unix($row_data[1], $row_data[0]),
