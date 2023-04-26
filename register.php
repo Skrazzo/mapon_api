@@ -9,6 +9,7 @@ if(check_fields(['username', 'pass', 're-pass'])){
     if(!username_exists($_POST['username'])){
         if($_POST['pass'] == $_POST['re-pass']){
             register($_POST['username'], $_POST['pass']);
+            header("Location: ./");
         }else{
             message("Passwords didn't match!", true);    
         }
@@ -36,5 +37,6 @@ if(check_fields(['username', 'pass', 're-pass'])){
         <input placeholder="Re-enter password" type="password" name="re-pass">
         <button>Register</button>
     </form>
+    <a href="./login.php">Login here</a>
 </body>
 </html>

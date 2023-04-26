@@ -21,6 +21,15 @@ if(isset($_POST['doc_id'])){
 }
 
 
+// sum variable
+$sum = array(
+    'total'         => 0,
+    'e95'           => 0,
+    'e98'           => 0,
+    'electricity'   => 0,
+    'cng'           => 0,
+    'diesel'        => 0
+);
 
 
 
@@ -39,7 +48,7 @@ if(isset($_POST['doc_id'])){
 </head> 
 <body style="display: flex;">
     <div class="sidebar">
-        <p class="center-p">Welcome <?= get_username() ?> <i class="logout-btn bi bi-box-arrow-left"></i></p>
+        <p class="center-p">Welcome <?= get_username() ?> <i onclick="window.location.href='./ds.php'" class="logout-btn bi bi-box-arrow-left"></i></p>
     
         
         <div class="cont mt">
@@ -198,18 +207,34 @@ if(isset($_POST['doc_id'])){
                     for($i = 0; $i < count($trans); $i++){
                         $date_time = date("d/m/Y H:i:s", $trans[$i]['datetime_ts']);
                         
+                        // putting right units, and calculating sum
                         $amount = '';
                         switch($trans[$i]['product']){
                             case 'CNG':
                                 $amount = $trans[$i]['amount'] . " kg";
+                                $sum['cng'] = $sum['cng'] + doubleval(str_replace(",", ".", $trans[$i]['sum']));
                                 break;
                             case 'Electricity':
                                 $amount = $trans[$i]['amount'] . " kWh";
+                                $sum['electricity'] = $sum['electricity'] + doubleval(str_replace(",", ".", $trans[$i]['sum']));
                                 break;
                             default:
                                 $amount = $trans[$i]['amount'] . " L";
+
+                                switch($trans[$i]['product']){
+                                    case 'E95':
+                                        $sum['e95'] = $sum['e95'] + doubleval(str_replace(",", ".", $trans[$i]['sum']));
+                                        break;
+                                    case 'E98':
+                                        $sum['e98'] = $sum['e98'] + doubleval(str_replace(",", ".", $trans[$i]['sum']));
+                                        break;
+                                    case 'Diesel':
+                                        $sum['diesel'] = $sum['diesel'] + doubleval(str_replace(",", ".", $trans[$i]['sum']));
+                                        break;
+                                }
                                 break;
                         }
+                        $sum['total'] = $sum['total'] + doubleval(str_replace(",", ".", $trans[$i]['sum']));
 
                         echo '
                             <tr>
@@ -233,7 +258,25 @@ if(isset($_POST['doc_id'])){
             
         </table>
 
-      
+        <table>
+            <tr>
+                <th>Total sum</th>
+                <th>E95</th>
+                <th>E98</th>
+                <th>Electricity</th>
+                <th>CNG</th>
+                <th>Diesel</th>
+            </tr>
+
+            <tr>
+                <td><?= $sum['total'] ?></td>
+                <td><?= $sum['e95'] ?></td>
+                <td><?= $sum['e98'] ?></td>
+                <td><?= $sum['electricity'] ?></td>
+                <td><?= $sum['cng'] ?></td>
+                <td><?= $sum['diesel'] ?></td>
+            </tr>
+        </table>
 
 
     </div>

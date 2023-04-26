@@ -29,5 +29,6 @@ if(check_fields(['user', 'pass'])){
         <input placeholder="Password" type="password" name="pass">
         <button>Login</button>
     </form>
-</body>
+    <a href="./register.php">Dont have an account?</a>
+</body> 
 </html>
