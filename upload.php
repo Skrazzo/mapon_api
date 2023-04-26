@@ -28,7 +28,8 @@ $file_name = $_FILES["fileToUpload"]["name"]; // save the real name of the file
 // uploaded file has to have randomized name
 $target_file = return_random_name();
 
-
+// api key for mapon
+$api_key = 'f94e281f9eff169647620454a2f62839524452a8';
 
 
 // CHECK IF FILE TYPE IS ALLOWED
@@ -70,6 +71,57 @@ if(isset($_POST["submit"])) {
                 fclose($handle);
             }
 
+            // after everything is put into database, we need to add information through api
+            // unit_ids is the unit ids for the available cars
+            $unit_ids = get_all_unit_ids($inserted_doc_id);
+
+            foreach ($unit_ids as $number => $unit_id){
+                // WHERE car_nr = $number AND doc_id = $inserted_doc_id
+                $GLOBALS['sql']->where('car_nr', $number);
+                $GLOBALS['sql']->where('doc_id', $inserted_doc_id);
+                
+                // get every time in a temp array, and convert time to request the api
+                $arr = $GLOBALS['sql']->get('transactions', null, ['datetime_ts', 'country_iso', 'car_nr']);
+                $api_arr = []; // array, that has data from api, and its unix timestamp
+
+                for($i = 0; $i < count($arr); $i++){
+                    @date_default_timezone_set(get_time_zone($ccode));
+
+                    $datetime = date("Y-m-d\TH:i:s\Z", $arr[$i]['datetime_ts']);
+                    $req = json_decode(file_get_contents('https://mapon.com/api/v1/unit_data/history_point.json?key='. $api_key .'&unit_id='. $unit_id .'&datetime='. $datetime .'&include[]=mileage&include[]=can_total_distance&include[]=position'), true);
+                    
+                    if(isset($req['data']['units'][0])){ 
+                        $tmp = $req['data']['units'][0];
+                        $api_arr = array_merge($api_arr, array(array(
+                            'car_nr'        => $arr[$i]['car_nr'],
+                            'datetime_ts'   => $arr[$i]['datetime_ts'],
+                            'gps_km'        => $tmp['mileage']['value'],
+                            'can_km'        => $tmp['can_total_distance']['value'],
+                            'lat'           => $tmp['position']['value']['lat'],
+                            'lng'           => $tmp['position']['value']['lng']
+                        )));
+                    }
+
+                    
+                }
+
+                // when api array has finished gathering information, we need to update the database
+                // by looping through newly created array, and updating each of the value in database
+                for($i = 0; $i < count($api_arr); $i++){
+                    echo "<pre>". print_r($api_arr[$i], 1) ."</pre>";    
+                    // prepeare where statement and update its values
+                    $GLOBALS['sql']->where('car_nr', $api_arr[$i]['car_nr']);
+                    $GLOBALS['sql']->where('datetime_ts', $api_arr[$i]['datetime_ts']);
+                    $GLOBALS['sql']->where('doc_id', $inserted_doc_id);
+
+                    $GLOBALS['sql']->update('transactions', $api_arr[$i]);
+                }
+
+
+                
+            }
+
+            
             header("Location: ./");
 
         } else {
@@ -83,10 +135,6 @@ if(isset($_POST["submit"])) {
 // from row data given, sort it and return as array
 // function returns false if product didn't meet the requirments
 function create_data_arr($row_data, $doc_id){
-    //echo "<pre>". print_r($row_data, 1) ."</pre>";
-
-    //echo "<p>". convert_string_unix($row_data[1], $row_data[0], $row_data[9]) ."</p>";
-
     $allowed_prod = ['Diesel', 'E95', 'E98', 'Electricity', 'CNG']; // allowed products
     if(in_array($row_data[4], $allowed_prod)){
         
@@ -131,6 +179,38 @@ function convert_string_unix($time, $date, $ccode){
     }
 
     return $unix_ts;
+}
+
+// this function returns an object that shows all available car unit_ids
+function get_all_unit_ids($doc_id){
+    $unit_id_link = "https://mapon.com/api/v1/unit/list.json?key=" . $GLOBALS['api_key'];
+
+    $GLOBALS['sql']->where('doc_id', $doc_id);
+    $trans = $GLOBALS['sql']->get('transactions');
+
+    for($i = 0; $i < count($trans); $i++){
+        $unit_id_link = $unit_id_link . "&car_number[]=" . $trans[$i]['car_nr'];
+    }
+
+    $unit_id_res_arr = json_decode(file_get_contents($unit_id_link), true);
+
+
+    // loop through unit_id_res_arr array and save car unit ids in a new array
+    $unit_ids = [];
+    if(isset($unit_id_res_arr['data']['units'])){
+        $unit_id_res_arr = $unit_id_res_arr['data']['units'];
+
+        for($i = 0; $i < count($unit_id_res_arr); $i++){
+            $unit_ids = array_merge($unit_ids, array($unit_id_res_arr[$i]['number'] => $unit_id_res_arr[$i]['unit_id']));
+        }
+    }
+    
+    // unit_ids 
+    // Array
+    // (
+    //     [KA-6963] => 117266
+    // )
+    return $unit_ids;
 }
 
 // function that returns timezone from mysql database by giving country iso

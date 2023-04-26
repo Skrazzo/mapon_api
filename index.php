@@ -16,6 +16,7 @@ $doc_array = $GLOBALS['sql']->get('documents');
 
 
 
+
 ?>
 
 <!DOCTYPE html>
@@ -63,6 +64,24 @@ $doc_array = $GLOBALS['sql']->get('documents');
             </form>
 
         </div>
+
+        <div class="cont mt">
+            <p class="center-p bold">Filter by period</p>
+            
+            <form action="./" method="post">
+                <input style="display:none;" name="doc_id" type="text" value="<?= @$_POST['doc_id'] ?>">
+                <div class="flex-space-between">
+                    <span>From</span>
+                    <input name='from' type="date">
+                </div>
+    
+                <div class="flex-space-between">
+                    <span>To</span>
+                    <input name='to' type="date">
+                </div>
+                <button name="sort_period" class="w-full">Sort</button>
+            </form>
+        </div>
     
     </div>
 
@@ -77,12 +96,25 @@ $doc_array = $GLOBALS['sql']->get('documents');
                 <th>Total cost</th>
                 <th>Cost per L/KG/unit</th>
                 <th>Fuel station name</th>
+                <th>GPS km</th>
+                <th>CAN km</th>
+                <th>lat lng</th>
             </tr>
 
             <?php
 
                 if(isset($_POST['doc_id'])){
                     $GLOBALS['sql']->where('doc_id', $_POST['doc_id']);
+
+                    // if sort period is requested
+                    if(isset($_POST['sort_period'])){
+                        $from_ts = strtotime($_POST['from']);
+                        $to_ts = strtotime($_POST['to']);
+                        
+                        $GLOBALS['sql']->where('datetime_ts', array($from_ts, $to_ts), 'BETWEEN');
+                    }
+
+                    $GLOBALS['sql']->orderBy("datetime_ts","asc");
                     $trans = $GLOBALS['sql']->get('transactions');
 
                     for($i = 0; $i < count($trans); $i++){
@@ -111,6 +143,9 @@ $doc_array = $GLOBALS['sql']->get('documents');
                                 <td>'. $trans[$i]['sum'] .' '. $trans[$i]['currency'] .'</td>
                                 <td>'. round(doubleval($trans[$i]['sum']) / doubleval( $trans[$i]['amount']), 2) .' '. $trans[$i]['currency'] .'</td>
                                 <td>'. $trans[$i]['fuel_station'] .'</td>
+                                <td>'. $trans[$i]['gps_km'] .'</td>
+                                <td>'. $trans[$i]['can_km'] .'</td>
+                                <td>'. $trans[$i]['lat'] .', '. $trans[$i]['lng'] .'</td>
                             </tr>
                         ';
                     }
@@ -119,6 +154,8 @@ $doc_array = $GLOBALS['sql']->get('documents');
             ?>
             
         </table>
+
+      
 
 
     </div>
