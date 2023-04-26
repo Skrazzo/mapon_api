@@ -13,6 +13,13 @@ if(!check_login()){
 $GLOBALS['sql']->where('user_id', get_user_id());
 $doc_array = $GLOBALS['sql']->get('documents');
 
+if(isset($_POST['doc_id'])){
+    //get options for filtering data, from database
+    $card_nr_array = $GLOBALS['sql']->rawQuery("SELECT DISTINCT `card_nr` FROM transactions WHERE doc_id=?", [$_POST['doc_id']]);
+    $car_nr_array = $GLOBALS['sql']->rawQuery("SELECT DISTINCT `car_nr` FROM transactions WHERE doc_id=?", [$_POST['doc_id']]);
+    $product_array = $GLOBALS['sql']->rawQuery("SELECT DISTINCT `product` FROM transactions WHERE doc_id=?", [$_POST['doc_id']]);
+}
+
 
 
 
@@ -82,7 +89,63 @@ $doc_array = $GLOBALS['sql']->get('documents');
                 <button name="sort_period" class="w-full">Sort</button>
             </form>
         </div>
+
+        <div class="cont mt">
+            <p class="center-p bold">Filter by fuel card</p>
+            
+            <form action="./" method="post">
+                <input style="display:none;" name="doc_id" type="text" value="<?= @$_POST['doc_id'] ?>">
+                <select onchange="this.form.submit()" name="sort_card">
+                    <option value="0">Select fuel card</option>
+
+                    <?php
+                        for($i = 0; $i < count($card_nr_array); $i++){
+                            echo '
+                            <option value="'. $card_nr_array[$i]['card_nr'] .'">'. $card_nr_array[$i]['card_nr'] .'</option>
+                            ';
+                        }
+                    ?>
+                </select>
+            </form>
+        </div>
     
+        <div class="cont mt">
+            <p class="center-p bold">Filter by vehicle</p>
+            
+            <form action="./" method="post">
+                <input style="display:none;" name="doc_id" type="text" value="<?= @$_POST['doc_id'] ?>">
+                <select onchange="this.form.submit()" name="sort_car">
+                    <option value="0">Select Vehicle number</option>
+
+                    <?php
+                        for($i = 0; $i < count($car_nr_array); $i++){
+                            echo '
+                            <option value="'. $car_nr_array[$i]['car_nr'] .'">'. $car_nr_array[$i]['car_nr'] .'</option>
+                            ';
+                        }
+                    ?>
+                </select>
+            </form>
+        </div>
+
+        <div class="cont mt">
+            <p class="center-p bold">Filter by product</p>
+            
+            <form action="./" method="post">
+                <input style="display:none;" name="doc_id" type="text" value="<?= @$_POST['doc_id'] ?>">
+                <select onchange="this.form.submit()" name="sort_product">
+                    <option value="0">Select Product</option>
+
+                    <?php
+                        for($i = 0; $i < count($product_array); $i++){
+                            echo '
+                            <option value="'. $product_array[$i]['product'] .'">'. $product_array[$i]['product'] .'</option>
+                            ';
+                        }
+                    ?>
+                </select>
+            </form>
+        </div>
     </div>
 
     <div class="w-full">
@@ -112,6 +175,21 @@ $doc_array = $GLOBALS['sql']->get('documents');
                         $to_ts = strtotime($_POST['to']);
                         
                         $GLOBALS['sql']->where('datetime_ts', array($from_ts, $to_ts), 'BETWEEN');
+                    }
+
+                    // if sord by card is requested
+                    if(isset($_POST['sort_card'])){
+                        $GLOBALS['sql']->where('card_nr', $_POST['sort_card']);
+                    }
+
+                    // if sord by car is requested
+                    if(isset($_POST['sort_car'])){
+                        $GLOBALS['sql']->where('car_nr', $_POST['sort_car']);
+                    }
+
+                    // if sord by product is requested
+                    if(isset($_POST['sort_product'])){
+                        $GLOBALS['sql']->where('product', $_POST['sort_product']);
                     }
 
                     $GLOBALS['sql']->orderBy("datetime_ts","asc");
