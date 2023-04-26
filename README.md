@@ -2,8 +2,8 @@
  
 ## To start
 * in phpmyadmin create 'mapon_api' database, and then import mapon_api.sql file that is stored in uploads
+* in /Lib/var.php set your mysql login credentials. And in upload.php at the top set your mapon $api_key
 * place all files in wanted directory, and set upload.php, and 'uploads' folder right permissions, something like '777'
-
 * navigate to ./register.php to create an account 
 
 ### libraries used
