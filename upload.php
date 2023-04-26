@@ -29,7 +29,7 @@ $file_name = $_FILES["fileToUpload"]["name"]; // save the real name of the file
 $target_file = return_random_name();
 
 // api key for mapon
-$api_key = 'f94e281f9eff169647620454a2f62839524452a8';
+$api_key = '';
 
 
 // CHECK IF FILE TYPE IS ALLOWED
